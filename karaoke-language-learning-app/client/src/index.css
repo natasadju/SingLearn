@@ -1,0 +1,106 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=Baloo+2:wght@500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 48 100% 97%;
+    --foreground: 231 30% 24%;
+    --card: 0 0% 100%;
+    --card-foreground: 231 30% 24%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 231 30% 24%;
+    --primary: 252 85% 65%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 165 55% 88%;
+    --secondary-foreground: 165 65% 25%;
+    --muted: 225 35% 94%;
+    --muted-foreground: 225 16% 48%;
+    --accent: 42 100% 72%;
+    --accent-foreground: 231 30% 24%;
+    --destructive: 0 75% 58%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 225 28% 87%;
+    --input: 225 28% 87%;
+    --ring: 252 85% 65%;
+    --radius: 1rem;
+    --y2k-yellow: 39 100% 47%;
+    --y2k-pink: 340 78% 57%;
+    --y2k-lime: 157 56% 36%;
+    --y2k-cyan: 197 75% 42%;
+    --y2k-orange: 24 88% 55%;
+    --y2k-purple: 252 75% 64%;
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 231 30% 24%;
+    --sidebar-primary: 252 85% 65%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 225 35% 94%;
+    --sidebar-accent-foreground: 231 30% 24%;
+    --sidebar-border: 225 28% 87%;
+    --sidebar-ring: 252 85% 65%;
+    --font-pixel: 'Baloo 2', 'Nunito', sans-serif;
+    --font-retro: 'Nunito', sans-serif;
+  }
+  * { @apply border-border; }
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-retro);
+    font-size: 16px;
+    background-image: radial-gradient(#f5c95b35 1px, transparent 1px), radial-gradient(#8d7cf025 1px, transparent 1px);
+    background-size: 28px 28px, 42px 42px;
+    background-position: 0 0, 14px 14px;
+  }
+  button, a, input, select { font-family: inherit; }
+  button, a { -webkit-tap-highlight-color: transparent; }
+  :focus-visible { outline: 3px solid hsl(var(--y2k-cyan)); outline-offset: 3px; }
+}
+
+@layer utilities {
+  .font-pixel { font-family: var(--font-pixel); font-weight: 800; letter-spacing: .01em; }
+  .font-retro { font-family: var(--font-retro); }
+  .bevel-box {
+    border: 2px solid hsl(var(--border));
+    border-radius: 1.25rem;
+    background: hsl(var(--card));
+    box-shadow: 0 5px 0 hsl(231 30% 24% / .07), 0 10px 24px hsl(231 30% 24% / .06);
+  }
+  .bevel-box-inset {
+    border: 2px solid hsl(var(--border));
+    border-radius: .9rem;
+    background: hsl(var(--muted) / .6);
+  }
+  .y2k-gradient {
+    border-radius: 1.1rem;
+    background: linear-gradient(120deg, hsl(var(--y2k-purple)), hsl(var(--y2k-pink)), hsl(var(--y2k-orange)));
+  }
+  .y2k-text-gradient {
+    background: linear-gradient(90deg, hsl(var(--y2k-purple)), hsl(var(--y2k-pink)), hsl(var(--y2k-orange)));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .marquee-container { overflow: hidden; white-space: nowrap; }
+  .marquee-text { display: inline-block; animation: marquee 24s linear infinite; }
+  .star-bg {
+    background-color: hsl(var(--card));
+    background-image: radial-gradient(circle at 8% 32%, #f5c95b40 0 5px, transparent 6px), radial-gradient(circle at 92% 65%, #8d7cf02a 0 7px, transparent 8px);
+  }
+  .blink { animation: blink-anim 1.4s ease-in-out infinite; }
+}
+
+@keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+@keyframes blink-anim { 0%, 100% { opacity: 1; } 50% { opacity: .65; } }
+@keyframes spin-slow { from { transform: rotate(-8deg); } to { transform: rotate(8deg); } }
+@keyframes bounce-y2k { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+
+/* Comfortable reading and touch targets for the song learning screens. */
+main { animation: page-in .35s ease-out both; }
+@keyframes page-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+button, a { transition: transform .16s ease, box-shadow .16s ease, background-color .16s ease, color .16s ease; }
+button:hover, a.bevel-box:hover { transform: translateY(-2px); }
+input, select { min-height: 46px; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
+}
