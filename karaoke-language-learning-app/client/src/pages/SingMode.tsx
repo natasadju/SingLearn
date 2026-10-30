@@ -25,6 +25,8 @@ const SingMode = () => {
   const isPlayingRef = useRef(false);
   const prevLineRef = useRef(0);
   const audioRef = useRef<HTMLAudioElement>(null);
+  const lyricsContainerRef = useRef<HTMLDivElement>(null);
+  const activeLineRef = useRef<HTMLDivElement>(null);
 
   const stopListening = useCallback(() => {
     if (recognitionRef.current) {
@@ -46,7 +48,7 @@ const SingMode = () => {
     const langMap: Record<string, string> = {
       es: 'es-ES', fr: 'fr-FR', ja: 'ja-JP', ko: 'ko-KR', pt: 'pt-BR', de: 'de-DE'
     };
-    recognition.lang = langMap[song?.language || 'es'] || 'es-ES';
+    recognition.lang = langMap[song?.language || 'es'] || 'en-EN';
     console.log("Speech recognition language set to:", recognition.lang);
     recognition.onresult = (event: SpeechRecognitionEvent) => {
       let result = '';
@@ -114,6 +116,8 @@ const SingMode = () => {
     setIsPlaying(true);
     isPlayingRef.current = true;
     setCurrentLine(0);
+    prevLineRef.current = 0;
+    lyricsContainerRef.current?.scrollTo({ top: 0, behavior: 'auto' });
     setTranscript('');
     setScores({});
     startTimeRef.current = Date.now();
@@ -162,6 +166,15 @@ const SingMode = () => {
     };
   }, [stopListening]);
 
+  // Keep the active lyric in view as the song progresses.
+  useEffect(() => {
+    if (!isPlaying) return;
+    activeLineRef.current?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'center',
+    });
+  }, [currentLine, isPlaying]);
+
   useEffect(() => {
     if (!isPlaying || !song) return;
 
@@ -199,131 +212,135 @@ const SingMode = () => {
 
   if (!song) {
     return (
-      <div className="min-h-screen flex flex-col">
-        <Y2KHeader />
-        <main className="flex-1 flex items-center justify-center">
-          <div className="bevel-box p-8 text-center">
-            <p className="font-pixel text-sm text-y2k-pink">Pesmi ni bilo mogoče najti</p>
-            <Link to="/" className="font-retro text-y2k-cyan mt-4 block">← Nazaj na začetek</Link>
-          </div>
-        </main>
-        <Y2KFooter />
-      </div>
+        <div className="min-h-screen flex flex-col">
+          <Y2KHeader />
+          <main className="flex-1 flex items-center justify-center">
+            <div className="bevel-box p-8 text-center">
+              <p className="font-pixel text-sm text-y2k-pink">Pesmi ni bilo mogoče najti</p>
+              <Link to="/" className="font-retro text-y2k-cyan mt-4 block">← Nazaj na začetek</Link>
+            </div>
+          </main>
+          <Y2KFooter />
+        </div>
     );
   }
 
   const avgScore = Object.values(scores).length > 0
-    ? Math.round(Object.values(scores).reduce((a, b) => a + b, 0) / Object.values(scores).length)
-    : null;
+      ? Math.round(Object.values(scores).reduce((a, b) => a + b, 0) / Object.values(scores).length)
+      : null;
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Y2KHeader />
-      <main className="flex-1 max-w-3xl mx-auto w-full px-4 py-6">
-        {/* Song info */}
-        <div className="bevel-box p-4 mb-4">
-          <div className="flex items-center justify-between flex-wrap gap-2">
-            <div>
-              <h2 className="font-pixel text-sm text-y2k-yellow">
-                {song.languageFlag} {song.title}
-              </h2>
-              <p className="font-retro text-y2k-pink">{song.artist}</p>
+      <div className="min-h-screen flex flex-col">
+        <Y2KHeader />
+        <main className="flex-1 max-w-3xl mx-auto w-full px-4 py-6">
+          {/* Song info */}
+          <div className="bevel-box p-4 mb-4">
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <div>
+                <h2 className="font-pixel text-sm text-y2k-yellow">
+                  {song.languageFlag} {song.title}
+                </h2>
+                <p className="font-retro text-y2k-pink">{song.artist}</p>
+              </div>
+              <Link to="/" className="bevel-box px-3 py-1 text-[9px] font-pixel text-y2k-cyan no-underline">
+                ← NAZAJ
+              </Link>
             </div>
-            <Link to="/" className="bevel-box px-3 py-1 text-[9px] font-pixel text-y2k-cyan no-underline">
-              ← NAZAJ
-            </Link>
           </div>
-        </div>
 
-        {/* Mode banner */}
-        <div className="y2k-gradient p-1 mb-4">
-          <div className="bg-background p-2 text-center">
-            <span className="font-pixel text-[10px] text-y2k-yellow">🎤 PETJE 🎤</span>
+          {/* Mode banner */}
+          <div className="y2k-gradient p-1 mb-4">
+            <div className="bg-background p-2 text-center">
+              <span className="font-pixel text-[10px] text-y2k-yellow">🎤 PETJE 🎤</span>
+            </div>
           </div>
-        </div>
 
-        {/* Controls */}
-        {/* Audio player */}
-        <div className="bevel-box p-3 mb-4 flex items-center gap-3">
-          <span className="font-pixel text-[9px] text-y2k-yellow">🎵 PREDVAJANJE:</span>
-          <audio ref={audioRef} controls className="flex-1 h-8" src={audioMap[song.id] ?? ''}>
-            Tvoj brskalnik ne podpira predvajanja zvoka.
-          </audio>
-          {isPlaying && (
-              <span className="font-pixel text-[9px] text-y2k-lime blink">▶ PREDVAJA SE</span>
-          )}
-        </div>
-        <div className="bevel-box p-4 mb-4 flex items-center justify-center gap-4">
-          {!isPlaying ? (
-            <button onClick={handlePlay} className="bevel-box px-6 py-2 font-pixel text-[10px] text-y2k-lime hover:text-y2k-yellow transition-colors">
-              ▶ ZAČNI PETI
-            </button>
-          ) : (
-            <>
-              <button onClick={handleStop} className="bevel-box px-6 py-2 font-pixel text-[10px] text-y2k-pink hover:text-y2k-yellow transition-colors">
-                ■ USTAVI
-              </button>
-            </>
-          )}
-          {isListening && (
-            <span className="font-pixel text-[8px] text-y2k-pink blink">● POSLUŠAM</span>
-          )}
-        </div>
+          {/* Controls */}
+          {/* Audio player */}
+          <div className="bevel-box p-3 mb-4 flex items-center gap-3">
+            <span className="font-pixel text-[9px] text-y2k-yellow">🎵 PREDVAJANJE:</span>
+            <audio ref={audioRef} controls className="flex-1 h-8" src={audioMap[song.id] ?? ''}>
+              Tvoj brskalnik ne podpira predvajanja zvoka.
+            </audio>
+            {isPlaying && (
+                <span className="font-pixel text-[9px] text-y2k-lime blink">▶ PREDVAJA SE</span>
+            )}
+          </div>
+          <div className="bevel-box p-4 mb-4 flex items-center justify-center gap-4">
+            {!isPlaying ? (
+                <button onClick={handlePlay} className="bevel-box px-6 py-2 font-pixel text-[10px] text-y2k-lime hover:text-y2k-yellow transition-colors">
+                  ▶ ZAČNI PETI
+                </button>
+            ) : (
+                <>
+                  <button onClick={handleStop} className="bevel-box px-6 py-2 font-pixel text-[10px] text-y2k-pink hover:text-y2k-yellow transition-colors">
+                    ■ USTAVI
+                  </button>
+                </>
+            )}
+            {isListening && (
+                <span className="font-pixel text-[8px] text-y2k-pink blink">● POSLUŠAM</span>
+            )}
+          </div>
 
-        {/* Lyrics display */}
-        <div className="bevel-box p-4 mb-4">
-          <h3 className="font-pixel text-[10px] text-y2k-cyan mb-3">BESEDILO PESMI</h3>
-          <div className="space-y-2 max-h-[400px] overflow-y-auto">
-            {song.lyrics.map((line, i) => (
-              <div
-                key={i}
-                className={`p-2 rounded transition-all ${
-                  i === currentLine && isPlaying
-                    ? 'bevel-box border-y2k-cyan scale-105'
-                    : 'opacity-60'
-                }`}
-              >
-                <p className={`font-retro text-xl ${
-                  i === currentLine && isPlaying ? 'text-y2k-yellow' : 'text-foreground'
-                }`}>
-                  {line.text}
-                </p>
-                <p className="font-retro text-sm text-muted-foreground">{line.translation}</p>
-                {scores[i] !== undefined && (
-                  <span className={`font-pixel text-[9px] ${
-                    scores[i] >= 70 ? 'text-y2k-lime' : scores[i] >= 40 ? 'text-y2k-yellow' : 'text-y2k-pink'
-                  }`}>
+          {/* Lyrics display */}
+          <div className="bevel-box p-4 mb-4">
+            <h3 className="font-pixel text-[10px] text-y2k-cyan mb-3">BESEDILO PESMI</h3>
+            <div
+                ref={lyricsContainerRef}
+                className="space-y-2 h-[min(60vh,500px)] min-h-[240px] overflow-y-auto overscroll-contain pr-2 scroll-smooth"
+            >
+              {song.lyrics.map((line, i) => (
+                  <div
+                      key={i}
+                      ref={i === currentLine ? activeLineRef : null}
+                      className={`p-3 rounded-md transition-all duration-300 scroll-m-3 ${
+                          i === currentLine && isPlaying
+                              ? 'bevel-box border-2 border-y2k-cyan scale-[1.02]'
+                              : 'opacity-100'
+                      }`}
+                  >
+                    <p className={`font-retro text-xl ${
+                        i === currentLine && isPlaying ? 'text-y2k-yellow' : 'text-foreground'
+                    }`}>
+                      {line.text}
+                    </p>
+                    <p className="font-retro text-sm text-muted-foreground">{line.translation}</p>
+                    {scores[i] !== undefined && (
+                        <span className={`font-pixel text-[9px] ${
+                            scores[i] >= 70 ? 'text-y2k-lime' : scores[i] >= 40 ? 'text-y2k-yellow' : 'text-y2k-pink'
+                        }`}>
                     TOČK: {scores[i]}%
                   </span>
-                )}
+                    )}
+                  </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Transcript */}
+          <div className="bevel-box p-4 mb-4">
+            <h3 className="font-pixel text-[10px] text-y2k-pink mb-2">TVOJ GLAS 📝</h3>
+            <div className="bevel-box-inset p-3 min-h-[60px]">
+              <p className="font-retro text-y2k-lime">
+                {transcript || (isListening ? 'Poslušam ...' : 'Pritisni »Začni peti« za začetek!')}
+              </p>
+            </div>
+          </div>
+
+          {/* Score summary */}
+          {avgScore !== null && !isPlaying && (
+              <div className="bevel-box p-4 text-center">
+                <h3 className="font-pixel text-sm text-y2k-yellow mb-2">
+                  {avgScore >= 70 ? '🌟 ODLIČNO! 🌟' : avgScore >= 40 ? '👍 LEPO POSKUŠAŠ!' : '💪 VADI ŠE NAPREJ!'}
+                </h3>
+                <p className="font-pixel text-2xl text-y2k-cyan">{avgScore}%</p>
+                <p className="font-retro text-muted-foreground mt-1">povprečna uspešnost</p>
               </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Transcript */}
-        <div className="bevel-box p-4 mb-4">
-          <h3 className="font-pixel text-[10px] text-y2k-pink mb-2">TVOJ GLAS 📝</h3>
-          <div className="bevel-box-inset p-3 min-h-[60px]">
-            <p className="font-retro text-y2k-lime">
-              {transcript || (isListening ? 'Poslušam ...' : 'Pritisni »Začni peti« za začetek!')}
-            </p>
-          </div>
-        </div>
-
-        {/* Score summary */}
-        {avgScore !== null && !isPlaying && (
-          <div className="bevel-box p-4 text-center">
-            <h3 className="font-pixel text-sm text-y2k-yellow mb-2">
-              {avgScore >= 70 ? '🌟 ODLIČNO! 🌟' : avgScore >= 40 ? '👍 LEPO POSKUŠAŠ!' : '💪 VADI ŠE NAPREJ!'}
-            </h3>
-            <p className="font-pixel text-2xl text-y2k-cyan">{avgScore}%</p>
-            <p className="font-retro text-muted-foreground mt-1">povprečna uspešnost</p>
-          </div>
-        )}
-      </main>
-      <Y2KFooter />
-    </div>
+          )}
+        </main>
+        <Y2KFooter />
+      </div>
   );
 };
 
