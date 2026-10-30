@@ -46,9 +46,16 @@ const SingMode = () => {
     recognition.interimResults = true;
 
     const langMap: Record<string, string> = {
-      es: 'es-ES', fr: 'fr-FR', ja: 'ja-JP', ko: 'ko-KR', pt: 'pt-BR', de: 'de-DE'
+      es: 'es-ES',
+      fr: 'fr-FR',
+      ja: 'ja-JP',
+      ko: 'ko-KR',
+      pt: 'pt-BR',
+      de: 'de-DE',
+      en: 'en-US',
+      sl: 'sl-SI'
     };
-    recognition.lang = langMap[song?.language || 'es'] || 'en-EN';
+    recognition.lang = langMap[song?.language || 'en'] || 'en-US';
     console.log("Speech recognition language set to:", recognition.lang);
     recognition.onresult = (event: SpeechRecognitionEvent) => {
       let result = '';
@@ -97,6 +104,12 @@ const SingMode = () => {
   const handlePlay = async () => {
     if (!song) {
       console.log("Cannot start singing: song not found");
+      return;
+    }
+
+    // Sing mode needs at least one timed lyric line.
+    if (!song.lyrics || song.lyrics.length === 0) {
+      console.warn("Cannot start singing: this song has no timed lyrics yet.");
       return;
     }
 
@@ -241,6 +254,11 @@ const SingMode = () => {
                   {song.languageFlag} {song.title}
                 </h2>
                 <p className="font-retro text-y2k-pink">{song.artist}</p>
+                {'schoolGroup' in song && song.schoolGroup && (
+                    <p className="font-retro text-xs text-muted-foreground">
+                      {song.schoolGroup} · {song.ageRange}
+                    </p>
+                )}
               </div>
               <Link to="/" className="bevel-box px-3 py-1 text-[9px] font-pixel text-y2k-cyan no-underline">
                 ← NAZAJ
@@ -259,7 +277,12 @@ const SingMode = () => {
           {/* Audio player */}
           <div className="bevel-box p-3 mb-4 flex items-center gap-3">
             <span className="font-pixel text-[9px] text-y2k-yellow">🎵 PREDVAJANJE:</span>
-            <audio ref={audioRef} controls className="flex-1 h-8" src={audioMap[song.id] ?? ''}>
+            <audio
+                ref={audioRef}
+                controls
+                className="flex-1 h-8"
+                src={audioMap[song.id] ?? song.audioUrl ?? ''}
+            >
               Tvoj brskalnik ne podpira predvajanja zvoka.
             </audio>
             {isPlaying && (
@@ -290,7 +313,7 @@ const SingMode = () => {
                 ref={lyricsContainerRef}
                 className="space-y-2 h-[min(60vh,500px)] min-h-[240px] overflow-y-auto overscroll-contain pr-2 scroll-smooth"
             >
-              {song.lyrics.map((line, i) => (
+              {song.lyrics.length > 0 ? song.lyrics.map((line, i) => (
                   <div
                       key={i}
                       ref={i === currentLine ? activeLineRef : null}
@@ -314,8 +337,20 @@ const SingMode = () => {
                   </span>
                     )}
                   </div>
-              ))}
+              )) : (
+                  <p className="font-retro text-muted-foreground">
+                    Besedilo s časovnimi oznakami še ni dodano.
+                  </p>
+              )}
             </div>
+            {'lyricsSource' in song && song.lyricsSource && (
+                <p className="font-retro text-xs text-muted-foreground mt-3">
+                  Vir besedila: <a href={song.lyricsSource} target="_blank" rel="noreferrer" className="underline">
+                  {song.lyricsSource}
+                </a>
+                  {'lyricsLicense' in song && song.lyricsLicense && ` · Licenca: ${song.lyricsLicense}`}
+                </p>
+            )}
           </div>
 
           {/* Transcript */}

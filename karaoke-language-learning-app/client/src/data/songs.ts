@@ -11,6 +11,10 @@ export interface Song {
   lyrics: LyricLine[];
   genre: string;
   audioUrl?: string;
+  schoolGroup?: string;
+  ageRange?: string;
+  lyricsSource?: string;
+  lyricsLicense?: string;
 }
 
 export interface LyricLine {
@@ -264,6 +268,178 @@ export const songs: Song[] = [
       { time: 226.68, text: "If the world was ending I'd wanna be next to you",                 translation: "" },
       { time: 239.24, text: "I'd wanna be next to you",                                         translation: "" },
     ],
+  },
+
+  // 1. KINDERGARTEN (3–6)
+// Twinkle, Twinkle, Little Star — Jane Taylor (1806)
+// Public domain
+
+  {
+    id: 'twinkle-twinkle',
+    title: 'Twinkle, Twinkle, Little Star',
+    artist: 'Jane Taylor / Traditional',
+    language: 'en',
+    languageFlag: '🇺🇸',
+    difficulty: 'easy',
+    bpm: 90,
+    genre: 'Nursery Rhyme',
+    schoolGroup: 'Kindergarten',
+    ageRange: '3–6',
+    lyricsSource: 'https://en.wikisource.org/wiki/Rhymes_for_the_Nursery/The_Star',
+    lyricsLicense: 'Public Domain',
+    lyrics: [
+      { time: 0, text: 'Twinkle, twinkle, little star,', translation: 'Svetlikaj, svetlikaj, zvezdica,' },
+      { time: 3, text: 'How I wonder what you are!', translation: 'Kako se sprašujem, kaj si!' },
+      { time: 6, text: 'Up above the world so high,', translation: 'Visoko nad svetom,' },
+      { time: 9, text: 'Like a diamond in the sky.', translation: 'Kot diamant na nebu.' },
+      { time: 12, text: 'Twinkle, twinkle, little star,', translation: 'Svetlikaj, svetlikaj, zvezdica,' },
+      { time: 15, text: 'How I wonder what you are!', translation: 'Kako se sprašujem, kaj si!' },
+
+      { time: 18, text: 'When the blazing sun is gone,', translation: 'Ko žareče sonce zaide,' },
+      { time: 21, text: 'When he nothing shines upon,', translation: 'Ko ničesar več ne osvetljuje,' },
+      { time: 24, text: 'Then you show your little light,', translation: 'Takrat pokažeš svojo lučko,' },
+      { time: 27, text: 'Twinkle, twinkle, all the night.', translation: 'Svetlikaš se vso noč.' }
+    ]
+  },
+
+// 2. LOWER PRIMARY (6–9)
+// Mary Had a Little Lamb — Sarah Josepha Hale (1830)
+// Public domain
+
+  {
+    id: 'mary-had-a-little-lamb',
+    title: 'Mary Had a Little Lamb',
+    artist: 'Sarah Josepha Hale / Traditional',
+    language: 'en',
+    languageFlag: '🇺🇸',
+    difficulty: 'easy',
+    bpm: 100,
+    genre: 'Children',
+    schoolGroup: 'Lower Primary',
+    ageRange: '6–9',
+    lyricsSource: 'https://nurseryrhymescollections.com/songs/mary-had-a-little-lamb/',
+    lyricsLicense: 'Public Domain',
+    lyrics: [
+      { time: 0, text: 'Mary had a little lamb,', translation: 'Mary je imela majhno jagnje,' },
+      { time: 3, text: 'Little lamb, little lamb,', translation: 'Majhno jagnje, majhno jagnje,' },
+      { time: 6, text: 'Mary had a little lamb,', translation: 'Mary je imela majhno jagnje,' },
+      { time: 9, text: 'Its fleece was white as snow.', translation: 'Njegova volna je bila bela kot sneg.' },
+
+      { time: 13, text: 'And everywhere that Mary went,', translation: 'In kamorkoli je Mary šla,' },
+      { time: 16, text: 'Mary went, Mary went,', translation: 'Mary je šla, Mary je šla,' },
+      { time: 19, text: 'Everywhere that Mary went,', translation: 'Kamorkoli je Mary šla,' },
+      { time: 22, text: 'The lamb was sure to go.', translation: 'Jagnje ji je vedno sledilo.' },
+
+      { time: 26, text: 'It followed her to school one day,', translation: 'Nekega dne ji je sledilo v šolo,' },
+      { time: 29, text: 'School one day, school one day,', translation: 'Nekega dne v šolo,' },
+      { time: 32, text: 'It followed her to school one day,', translation: 'Nekega dne ji je sledilo v šolo,' },
+      { time: 35, text: 'Which was against the rule.', translation: 'Čeprav je bilo to proti pravilom.' }
+    ]
+  },
+
+// 3. UPPER PRIMARY (9–12)
+// Hot Cross Buns — Traditional English song (printed in 1798)
+// Public domain
+
+  {
+    id: 'hot-cross-buns',
+    title: 'Hot Cross Buns',
+    artist: 'Traditional',
+    language: 'en',
+    languageFlag: '🇺🇸',
+    difficulty: 'easy',
+    bpm: 110,
+    genre: 'Traditional Children Song',
+    schoolGroup: 'Upper Primary',
+    ageRange: '9–12',
+    lyricsSource: 'https://music.aurasense.ai/credits/',
+    lyricsLicense: 'Public Domain',
+    lyrics: [
+      { time: 0, text: 'Hot cross buns!', translation: 'Vroče žemljice!' },
+      { time: 2, text: 'Hot cross buns!', translation: 'Vroče žemljice!' },
+      { time: 4, text: 'One a penny, two a penny,', translation: 'Ena za peni, dve za peni,' },
+      { time: 7, text: 'Hot cross buns!', translation: 'Vroče žemljice!' },
+
+      { time: 10, text: 'If you have no daughters,', translation: 'Če nimaš hčera,' },
+      { time: 13, text: 'Give them to your sons.', translation: 'Jih daj svojim sinovom.' },
+      { time: 16, text: 'One a penny, two a penny,', translation: 'Ena za peni, dve za peni,' },
+      { time: 19, text: 'Hot cross buns!', translation: 'Vroče žemljice!' }
+    ]
+  },
+
+// 4. LOWER SECONDARY (12–15)
+// Auld Lang Syne — Robert Burns (1788)
+// Public domain
+
+  {
+    id: 'auld-lang-syne',
+    title: 'Auld Lang Syne',
+    artist: 'Robert Burns / Traditional Scottish',
+    language: 'en',
+    languageFlag: '🏴',
+    difficulty: 'medium',
+    bpm: 80,
+    genre: 'Traditional Folk',
+    schoolGroup: 'Lower Secondary',
+    ageRange: '12–15',
+    lyricsSource: 'https://poets.org/poem/auld-lang-syne',
+    lyricsLicense: 'Public Domain',
+    lyrics: [
+      { time: 0, text: 'Should auld acquaintance be forgot,', translation: 'Naj pozabimo stara poznanstva,' },
+      { time: 4, text: 'And never brought to mind?', translation: 'In jih nikoli več ne obudimo?' },
+      { time: 8, text: 'Should auld acquaintance be forgot,', translation: 'Naj pozabimo stara poznanstva,' },
+      { time: 12, text: 'And auld lang syne!', translation: 'In stare čase!' },
+
+      { time: 16, text: 'For auld lang syne, my dear,', translation: 'Za stare čase, dragi moj,' },
+      { time: 20, text: 'For auld lang syne,', translation: 'Za stare čase,' },
+      { time: 24, text: "We'll tak a cup o' kindness yet,", translation: 'Še nazdravimo s prijaznostjo,' },
+      { time: 28, text: 'For auld lang syne.', translation: 'Za stare čase.' },
+
+      { time: 32, text: 'We twa hae run about the braes,', translation: 'Midva sva tekala po pobočjih,' },
+      { time: 36, text: "And pou'd the gowans fine;", translation: 'In nabirala lepe marjetice;' },
+      { time: 40, text: "But we've wander'd mony a weary fit,", translation: 'Prehodila sva že mnogo utrujenih korakov,' },
+      { time: 44, text: "Sin' auld lang syne.", translation: 'Od starih časov.' }
+    ]
+  },
+
+// 5. UPPER SECONDARY (15–19)
+// Amazing Grace — John Newton (1779)
+// Public domain
+
+  {
+    id: 'amazing-grace',
+    title: 'Amazing Grace',
+    artist: 'John Newton / Traditional',
+    language: 'en',
+    languageFlag: '🇺🇸',
+    difficulty: 'medium',
+    bpm: 75,
+    genre: 'Traditional Hymn',
+    schoolGroup: 'Upper Secondary',
+    ageRange: '15–19',
+    lyricsSource: 'https://www.hymnary.org/text/amazing_grace_how_sweet_the_sound',
+    lyricsLicense: 'Public Domain',
+    lyrics: [
+      { time: 0, text: 'Amazing grace! How sweet the sound', translation: 'Čudovita milost! Kako sladko zveni,' },
+      { time: 5, text: 'That saved a wretch like me!', translation: 'Ki je rešila grešnika, kot sem jaz!' },
+      { time: 10, text: 'I once was lost, but now am found;', translation: 'Nekoč sem bil izgubljen, zdaj pa sem najden;' },
+      { time: 15, text: 'Was blind, but now I see.', translation: 'Bil sem slep, zdaj pa vidim.' },
+
+      { time: 20, text: "'Twas grace that taught my heart to fear,", translation: 'Milost me je naučila strahospoštovanja,' },
+      { time: 25, text: 'And grace my fears relieved;', translation: 'In milost je odpravila moje strahove;' },
+      { time: 30, text: 'How precious did that grace appear', translation: 'Kako dragocena se je zdela ta milost,' },
+      { time: 35, text: 'The hour I first believed.', translation: 'V trenutku, ko sem prvič verjel.' },
+
+      { time: 40, text: 'Through many dangers, toils and snares,', translation: 'Skozi mnoge nevarnosti, napore in pasti,' },
+      { time: 45, text: 'I have already come;', translation: 'Sem že prišel;' },
+      { time: 50, text: "'Tis grace hath brought me safe thus far,", translation: 'Milost me je varno pripeljala do sem,' },
+      { time: 55, text: "And grace will lead me home.", translation: 'In milost me bo vodila domov.' },
+
+      { time: 60, text: 'The Lord has promised good to me,', translation: 'Gospod mi je obljubil dobro,' },
+      { time: 65, text: 'His word my hope secures;', translation: 'Njegova beseda mi daje upanje;' },
+      { time: 70, text: 'He will my shield and portion be,', translation: 'On bo moj ščit in moja opora,' },
+      { time: 75, text: 'As long as life endures.', translation: 'Dokler bo trajalo življenje.' }
+    ]
   },
 
 ];
