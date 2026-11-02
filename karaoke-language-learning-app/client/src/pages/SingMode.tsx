@@ -5,10 +5,16 @@ import Y2KHeader from '@/components/Y2KHeader';
 import Y2KFooter from '@/components/Y2KFooter';
 import dieWithASmile from '@/assets/audio/die-with-a-smile.mp3';
 import despacito from '@/assets/audio/despacito.mp3';
+import happy from '@/assets/audio/happy.mp3';
+import hallOfFame from '@/assets/audio/hallOfFame.mp3';
+import tryEverything from '@/assets/audio/tryEverything.mp3'
 
 const audioMap: Record<string, string> = {
   'die-with-a-smile': dieWithASmile,
-  'despacito': despacito
+  'despacito': despacito,
+  'happy-pharrell-williams': happy,
+  'hall-of-fame': hallOfFame,
+  'try-everything': tryEverything
 };
 
 const SingMode = () => {
@@ -28,6 +34,12 @@ const SingMode = () => {
   const lyricsContainerRef = useRef<HTMLDivElement>(null);
   const activeLineRef = useRef<HTMLDivElement>(null);
 
+  // Speech recognition in continuous mode keeps ALL results of the session.
+  // We remember the full text and how much of it belongs to earlier lines,
+  // so the transcript box only shows what was sung on the current line.
+  const fullTranscriptRef = useRef('');
+  const consumedLengthRef = useRef(0);
+
   const stopListening = useCallback(() => {
     if (recognitionRef.current) {
       recognitionRef.current.stop();
@@ -45,6 +57,10 @@ const SingMode = () => {
     recognition.continuous = true;
     recognition.interimResults = true;
 
+    // A new recognition session starts with an empty results list.
+    fullTranscriptRef.current = '';
+    consumedLengthRef.current = 0;
+
     const langMap: Record<string, string> = {
       es: 'es-ES',
       fr: 'fr-FR',
@@ -57,16 +73,20 @@ const SingMode = () => {
     };
     recognition.lang = langMap[song?.language || 'en'] || 'en-US';
     console.log("Speech recognition language set to:", recognition.lang);
-    recognition.onresult = (event: SpeechRecognitionEvent) => {
-      let result = '';
+    recognition.onresult = (event: any) => {
+      let full = '';
       for (let i = 0; i < event.results.length; i++) {
-        result += event.results[i][0].transcript;
+        full += event.results[i][0].transcript;
       }
-      console.log("Transcript updated:", result);
-      setTranscript(result);
+      fullTranscriptRef.current = full;
+
+      // Show only the part sung since the current line started.
+      const lineText = full.slice(consumedLengthRef.current).trim();
+      console.log("Transcript updated:", lineText);
+      setTranscript(lineText);
     };
 
-    recognition.onerror = (e) => {
+    recognition.onerror = (e: any) => {
       console.log("Speech error:", e.error);
 
       if (e.error === "not-allowed") {
@@ -133,6 +153,8 @@ const SingMode = () => {
     lyricsContainerRef.current?.scrollTo({ top: 0, behavior: 'auto' });
     setTranscript('');
     setScores({});
+    fullTranscriptRef.current = '';
+    consumedLengthRef.current = 0;
     startTimeRef.current = Date.now();
 
     startListening();
@@ -179,13 +201,23 @@ const SingMode = () => {
     };
   }, [stopListening]);
 
-  // Keep the active lyric in view as the song progresses.
+  // Keep the active lyric centred INSIDE the lyrics box only.
+  // (scrollIntoView would also scroll the whole page, so we scroll the
+  // container manually instead.)
   useEffect(() => {
     if (!isPlaying) return;
-    activeLineRef.current?.scrollIntoView({
-      behavior: 'smooth',
-      block: 'center',
-    });
+
+    const container = lyricsContainerRef.current;
+    const activeLine = activeLineRef.current;
+    if (!container || !activeLine) return;
+
+    // offsetTop is relative to the container because it is `relative`.
+    const target =
+        activeLine.offsetTop -
+        container.clientHeight / 2 +
+        activeLine.clientHeight / 2;
+
+    container.scrollTo({ top: Math.max(0, target), behavior: 'smooth' });
   }, [currentLine, isPlaying]);
 
   useEffect(() => {
@@ -218,7 +250,10 @@ const SingMode = () => {
         console.log(`Auto score line ${prevLine}:`, score);
       }
 
-      setTranscript(''); // 🔥 reset for next line
+      // Everything heard so far belongs to the previous line(s);
+      // start the new line with an empty transcript.
+      consumedLengthRef.current = fullTranscriptRef.current.length;
+      setTranscript('');
       prevLineRef.current = currentLine;
     }
   }, [currentLine, isPlaying, transcript, song]);
@@ -306,18 +341,20 @@ const SingMode = () => {
             )}
           </div>
 
-          {/* Lyrics display */}
+          {/* Lyrics + transcript (transcript sits directly under the lyrics) */}
           <div className="bevel-box p-4 mb-4">
             <h3 className="font-pixel text-[10px] text-y2k-cyan mb-3">BESEDILO PESMI</h3>
+
+            {/* `relative` is required so offsetTop is measured from this box */}
             <div
                 ref={lyricsContainerRef}
-                className="space-y-2 h-[min(60vh,500px)] min-h-[240px] overflow-y-auto overscroll-contain pr-2 scroll-smooth"
+                className="relative space-y-2 h-[min(45vh,380px)] min-h-[200px] overflow-y-auto overscroll-contain pr-2"
             >
               {song.lyrics.length > 0 ? song.lyrics.map((line, i) => (
                   <div
                       key={i}
                       ref={i === currentLine ? activeLineRef : null}
-                      className={`p-3 rounded-md transition-all duration-300 scroll-m-3 ${
+                      className={`p-3 rounded-md transition-all duration-300 ${
                           i === currentLine && isPlaying
                               ? 'bevel-box border-2 border-y2k-cyan scale-[1.02]'
                               : 'opacity-100'
@@ -343,6 +380,17 @@ const SingMode = () => {
                   </p>
               )}
             </div>
+
+            {/* Transcript */}
+            <div className="mt-4">
+              <h3 className="font-pixel text-[10px] text-y2k-pink mb-2">TVOJ GLAS 📝</h3>
+              <div className="bevel-box-inset p-3 min-h-[60px]">
+                <p className="font-retro text-y2k-lime">
+                  {transcript || (isListening ? 'Poslušam ...' : 'Pritisni »Začni peti« za začetek!')}
+                </p>
+              </div>
+            </div>
+
             {'lyricsSource' in song && song.lyricsSource && (
                 <p className="font-retro text-xs text-muted-foreground mt-3">
                   Vir besedila: <a href={song.lyricsSource} target="_blank" rel="noreferrer" className="underline">
@@ -351,16 +399,6 @@ const SingMode = () => {
                   {'lyricsLicense' in song && song.lyricsLicense && ` · Licenca: ${song.lyricsLicense}`}
                 </p>
             )}
-          </div>
-
-          {/* Transcript */}
-          <div className="bevel-box p-4 mb-4">
-            <h3 className="font-pixel text-[10px] text-y2k-pink mb-2">TVOJ GLAS 📝</h3>
-            <div className="bevel-box-inset p-3 min-h-[60px]">
-              <p className="font-retro text-y2k-lime">
-                {transcript || (isListening ? 'Poslušam ...' : 'Pritisni »Začni peti« za začetek!')}
-              </p>
-            </div>
           </div>
 
           {/* Score summary */}

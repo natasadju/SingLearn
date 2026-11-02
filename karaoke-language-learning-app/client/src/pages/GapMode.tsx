@@ -6,10 +6,17 @@ import Y2KHeader from '@/components/Y2KHeader';
 import Y2KFooter from '@/components/Y2KFooter';
 import dieWithASmile from '@/assets/audio/die-with-a-smile.mp3';
 import despacito from '@/assets/audio/despacito.mp3';
+import happy from '@/assets/audio/happy.mp3';
+import hallOfFame from '@/assets/audio/hallOfFame.mp3';
+import tryEverything from '@/assets/audio/tryEverything.mp3';
+
 
 const audioMap: Record<string, string> = {
   'die-with-a-smile': dieWithASmile,
-  'despacito': despacito
+  'despacito': despacito,
+  'happy-pharrell-williams': happy,
+  'hall-of-fame': hallOfFame,
+  'try-everything': tryEverything,
 };
 
 function getGapWords(text: string): { words: string[]; gapIndices: number[] } {
