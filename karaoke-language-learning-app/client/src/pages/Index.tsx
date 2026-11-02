@@ -17,7 +17,7 @@ const AGE_GROUPS: AgeGroup[] = [
   { name: 'Lower Secondary', min: 13, max: 15 }
 ];
 
-// Key for songs that have no age metadata in songs.ts.
+// Key for songs that don't belong to any of the groups above.
 const OTHER_KEY = 'Other';
 
 const getAgeGroup = (age: number): AgeGroup | undefined =>
@@ -45,16 +45,13 @@ const getSongGroupName = (song: Song): string => {
   return OTHER_KEY;
 };
 
-const isValidAge = (value: number) =>
-    Number.isInteger(value) && value >= 3 && value <= 19;
-
 const Index = () => {
   const [search, setSearch] = useState('');
   const [langFilter, setLangFilter] = useState('all');
   const [recommendations, setRecommendations] = useState<string[]>([]);
 
-  const [age, setAge] = useState<number | null>(null);
-  const [ageInput, setAgeInput] = useState('');
+  // Currently selected age group (set by the buttons only).
+  const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
 
   const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
 
@@ -65,12 +62,18 @@ const Index = () => {
     });
   };
 
+  // Clicking a button selects the group and scrolls to it.
+  const handleGroupClick = (groupName: string) => {
+    setSelectedGroup(groupName);
+    localStorage.setItem('user-age-group', groupName);
+    scrollToGroup(groupName);
+  };
+
   useEffect(() => {
-    // Restore previously selected age (highlight only, no auto-scroll).
-    const savedAge = Number(localStorage.getItem('user-age'));
-    if (isValidAge(savedAge)) {
-      setAge(savedAge);
-      setAgeInput(String(savedAge));
+    // Restore previously selected group (highlight only, no auto-scroll).
+    const savedGroup = localStorage.getItem('user-age-group');
+    if (savedGroup && AGE_GROUPS.some(g => g.name === savedGroup)) {
+      setSelectedGroup(savedGroup);
     }
 
     // Language-based recommendations.
@@ -90,23 +93,6 @@ const Index = () => {
       );
     }
   }, []);
-
-  // Typing an age scrolls straight to that age group.
-  const handleAgeChange = (value: string) => {
-    setAgeInput(value);
-
-    const parsed = Number(value);
-    if (value === '' || !isValidAge(parsed)) {
-      if (value === '') setAge(null);
-      return;
-    }
-
-    setAge(parsed);
-    localStorage.setItem('user-age', String(parsed));
-
-    const group = getAgeGroup(parsed);
-    if (group) scrollToGroup(group.name);
-  };
 
   // All songs (filtered by search/language), grouped by age group.
   const sections = useMemo(() => {
@@ -143,64 +129,35 @@ const Index = () => {
       [recommendations]
   );
 
-  const currentAgeGroup = age !== null ? getAgeGroup(age) : undefined;
-  const ageInputInvalid = ageInput !== '' && !isValidAge(Number(ageInput));
-
   return (
       <div className="min-h-screen flex flex-col">
         <Y2KHeader />
 
-        {/* Sticky age bar: type an age and the list jumps to that group */}
+        {/* Sticky age-group buttons: click one and the list jumps to it */}
         <div className="sticky top-0 z-20 bg-background/95 backdrop-blur border-b-2 border-y2k-purple">
           <div className="max-w-5xl mx-auto w-full px-4 py-3">
             <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-              <label
-                  htmlFor="age-input"
-                  className="font-pixel text-y2k-purple whitespace-nowrap"
-              >
+              <span className="font-pixel text-y2k-purple whitespace-nowrap">
                 🎂 Koliko si star?
-              </label>
-
-              <input
-                  id="age-input"
-                  type="number"
-                  min="3"
-                  max="19"
-                  value={ageInput}
-                  onChange={e => handleAgeChange(e.target.value)}
-                  placeholder="3–19"
-                  className="w-full sm:w-32 bevel-box-inset px-4 py-2 font-retro text-foreground bg-background focus:outline-none focus:border-y2k-cyan"
-              />
-
-              {currentAgeGroup && (
-                  <span className="font-pixel text-y2k-lime">
-                ⭐ {currentAgeGroup.name}
               </span>
-              )}
 
-              {ageInputInvalid && (
-                  <span className="font-retro text-sm text-y2k-pink">
-                Vnesi starost med 3 in 19 let.
-              </span>
-              )}
-            </div>
-
-            {/* Quick jump chips */}
-            <div className="flex flex-wrap gap-2 mt-3">
-              {AGE_GROUPS.map(group => (
-                  <button
-                      key={group.name}
-                      type="button"
-                      onClick={() => scrollToGroup(group.name)}
-                      className={`rounded-full px-3 py-1 text-xs font-pixel transition-colors ${
-                          currentAgeGroup?.name === group.name
-                              ? 'bg-y2k-purple text-white'
-                              : 'bg-muted text-foreground hover:bg-y2k-purple hover:text-white'
-                      }`}
-                  >
-                    {group.min}–{group.max}
-                  </button>
-              ))}
+              <div className="flex flex-wrap gap-2">
+                {AGE_GROUPS.map(group => (
+                    <button
+                        key={group.name}
+                        type="button"
+                        onClick={() => handleGroupClick(group.name)}
+                        aria-pressed={selectedGroup === group.name}
+                        className={`rounded-full px-4 py-2 text-sm font-pixel transition-colors ${
+                            selectedGroup === group.name
+                                ? 'bg-y2k-purple text-white'
+                                : 'bg-muted text-foreground hover:bg-y2k-purple hover:text-white'
+                        }`}
+                    >
+                      {group.min}–{group.max} let
+                    </button>
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -294,7 +251,7 @@ const Index = () => {
                 return null;
               }
 
-              const isActive = currentAgeGroup?.name === section.key;
+              const isActive = selectedGroup === section.key;
 
               return (
                   <section
@@ -303,7 +260,7 @@ const Index = () => {
                         sectionRefs.current[section.key] = el;
                       }}
                       // Offset so the heading isn't hidden behind the sticky bar.
-                      className={`bevel-box p-5 sm:p-6 scroll-mt-40 ${
+                      className={`bevel-box p-5 sm:p-6 scroll-mt-28 ${
                           isActive ? 'ring-2 ring-y2k-purple' : ''
                       }`}
                   >
