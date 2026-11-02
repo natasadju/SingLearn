@@ -58,8 +58,8 @@ const AuthModal = ({ onClose }: Props) => {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
       return setError('Vnesi veljaven e-poštni naslov!');
     const ageNum = parseInt(age);
-    if (isNaN(ageNum) || ageNum < 5 || ageNum > 120)
-      return setError('Vnesi veljavno starost (5–120)!');
+    if (isNaN(ageNum) || ageNum < 7 || ageNum > 15)
+      return setError('Vnesi veljavno starost (7–15)!');
     if (password !== confirmPassword)
       return setError('Gesli se ne ujemata!');
     if (password.length < 6)
@@ -118,6 +118,8 @@ const AuthModal = ({ onClose }: Props) => {
                 type="text"
                 inputMode="numeric"
                 pattern="[0-9]*"
+                min="7"
+                max="15"
                 placeholder="Starost ..."
                 value={age}
                 onChange={e => { setAge(e.target.value); setError(''); }}
